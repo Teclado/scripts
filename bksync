@@ -1,7 +1,7 @@
 #!/bin/bash
 #################################################################################
 ##                                                                             ##
-##    Copyright (C) 2012 Free Software Foundation, Inc. <http://fsf.org/>      ##
+##    Copyright (C) 2013 Free Software Foundation, Inc. <http://fsf.org/>      ##
 ##                                                                             ##
 ##    This program is free software: you can redistribute it and/or modify     ##
 ##    it under the terms of the GNU General Public License as published by     ##
@@ -22,7 +22,7 @@
 ##                                                                             ##
 ##          Author: Teclado @ GitHub                                           ##
 ##           Email: mugre_en_el_teclado@yahoo.es                               ##
-##            Date: 2013/09/28                                                 ##
+##            Date: 2013/09/29                                                ##
 ##     Description: Maintain a numbered backup based on timestamps of a        ##
 ##                  remote directory (typically a USB drive) into a local      ##
 ##                  directory or vice versa.                                   ##
@@ -35,8 +35,8 @@ if [ $# -eq 2 ]; then
 	ldir=$2
 else
 # Set default values
-	rdir=
-	ldir=
+	rdir=/home/teclado/Escritorio/sync_pen/remote
+	ldir=/home/teclado/Escritorio/sync_pen/local
 fi
 
 [ -d "$ldir" ] && [ -d "$rdir" ] || exit
@@ -53,10 +53,10 @@ function place () {
 	done
 	if [ -e "$1" ]; then
 		let m=0
-		while [ -e "${d[$m]}" ] && [ "${d[$m]}" -nt "$1" ]; do
+		while [ $m -lt $n ] && [ "${d[$m]}" -nt "$1" ]; do
 			let m+=1
 		done
-		if [ ! -e "${d[$m]}" ] || [ "$1" -nt "${d[$m]}" ]; then
+		if [ $m -eq $n ] || [ "$1" -nt "${d[$m]}" ]; then
 			while [ $n -gt $m ]; do
 				mv "${d[$((n-1))]}" "${d[$n]}"
 				let n-=1
@@ -67,6 +67,8 @@ function place () {
 				move "$1" "${d[$m]}"
 				copy "${d[0]}" "$1"
 			fi
+		elif [ $m -ne 0 ]; then
+			copy "${d[0]}" "$1"
 		fi
 	elif [ $n -gt 0 ]; then
 		copy "${d[0]}" "$1"
@@ -74,7 +76,7 @@ function place () {
 }
 
 function copy () {
-# More suitable than cp in this case
+# More suitable than cp in this case.
 	ddir=$(dirname "$2")
 	if [ -d "$ddir" ]; then
 		cp --preserve=timestamps "$1" "$2"
@@ -92,8 +94,7 @@ function copy () {
 }
 
 function move () {
-# More suitable than mv in this case
-	ddir=$(dirname "$2")
+# More suitable than mv in this case.
 	if [ -d "$ddir" ]; then
 		mv "$1" "$2"
 	else
