@@ -67,7 +67,7 @@ function place () {
 				move "$1" "${d[$m]}"
 				copy "${d[0]}" "$1"
 			fi
-		elif [ $m -ne 0 ]; then
+		elif [ $m -gt 0 ]; then
 			copy "${d[0]}" "$1"
 		fi
 	elif [ $n -gt 0 ]; then
