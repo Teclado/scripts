@@ -95,6 +95,7 @@ function copy () {
 
 function move () {
 # More suitable than mv in this case.
+	ddir=$(dirname "$2")
 	if [ -d "$ddir" ]; then
 		mv "$1" "$2"
 	else
