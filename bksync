@@ -35,8 +35,8 @@ if [ $# -eq 2 ]; then
 	ldir=$2
 else
 # Set default values
-	rdir=/home/teclado/Escritorio/sync_pen/remote
-	ldir=/home/teclado/Escritorio/sync_pen/local
+	rdir=
+	ldir=
 fi
 
 [ -d "$ldir" ] && [ -d "$rdir" ] || exit
