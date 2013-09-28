@@ -78,9 +78,7 @@ function place () {
 function copy () {
 # More suitable than cp in this case.
 	ddir=$(dirname "$2")
-	if [ -d "$ddir" ]; then
-		cp --preserve=timestamps "$1" "$2"
-	else
+	if [ ! -d "$ddir" ]; then
 		d=$ddir
 		while [ ! -e "$d" ]; do
 			d=$(dirname "$d")
@@ -89,16 +87,14 @@ function copy () {
 			mv "$d" "${d%/*}/file_${d##*/}"
 		fi
 		mkdir -p "$ddir"
-		cp --preserve=timestamps "$1" "$2"
 	fi
+	cp --preserve=timestamps "$1" "$2"
 }
 
 function move () {
 # More suitable than mv in this case.
 	ddir=$(dirname "$2")
-	if [ -d "$ddir" ]; then
-		mv "$1" "$2"
-	else
+	if [ ! -d "$ddir" ]; then
 		d=$ddir
 		while [ ! -e "$d" ]; do
 			d=$(dirname "$d")
@@ -107,8 +103,8 @@ function move () {
 			mv "$d" "${d%/*}/file_${d##*/}"
 		fi
 		mkdir -p "$ddir"
-		mv "$1" "$2"
 	fi
+	mv "$1" "$2"
 }
 
 find "$rdir" -type f | while read rf; do
@@ -122,5 +118,3 @@ find "$ldir" -type f | while read lf; do
 		place "$rf" "$lf"
 	fi
 done
-
-
