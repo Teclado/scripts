@@ -11,4 +11,5 @@ All of them are plain C code ready to compile with something like gcc &lt;source
 
 There are also a bash script intended to sync a remote directory (in a USB drive or something like that) whith a local numbered backup:
 
-- bksync: Make numbered backups based on the timestamps.
+- bksync.sh: Make numbered backups based on the timestamps.
+- destroy-dir.sh: Destroy the contents of a directory overwriting them with random data.
