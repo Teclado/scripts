@@ -1,11 +1,15 @@
 #!/bin/bash
 
-DIRECTORIO="$1"
+DIRECTORIO=$(readlink -f "$1")
 TIEMPO_IMPRIMIR=100
+TAMANYO_BLOQUE=512
+
+I_WANNA_CANCEL=
 
 function get_millis() {
-    segundos=$(date +%s)
-    nano=$(date +%N)
+    momento=$(date +"%s|%N")
+    segundos=$(echo $momento | cut -f 1 -d "|")
+    nano=$(echo $momento | cut -f 2 -d "|")
     while [[ ${nano:0:1} -eq 0 ]]
     do
         nano=${nano:1}
@@ -29,6 +33,12 @@ function unidades() {
     fi
 }
 
+function cancel() {
+    I_WANNA_CANCEL+=1
+}
+
+trap cancel SIGINT
+
 echo "Borrando $DIRECTORIO..."
 
 let ultima_impresion=$(get_millis)
@@ -39,6 +49,7 @@ do
     path=$(readlink -f "${data#*:}")
     if [[ "${path#$DIRECTORIO}" != "$path" ]]
     then
+        dd bs=$TAMANYO_BLOQUE count=$bytes iflag=count_bytes if=/dev/urandom of="$path" 2>/dev/null
         let total_bytes+=$bytes
         let tiempo=$(get_millis)-$ultima_impresion
         if [[ $tiempo -gt $TIEMPO_IMPRIMIR ]]
@@ -51,9 +62,15 @@ do
             do
                 espacios+=" "
             done
-            echo -en "\r$impresion$espacios"
+            impresion+=$espacios
+            echo -en "\r${impresion:0:$(tput cols)}"
             let ultima_impresion=$(get_millis)
         fi
-        head -c $bytes /dev/urandom > "$path"
+        if [[ -n "$I_WANNA_CANCEL" ]]
+        then
+            echo
+            echo "Cancelled."
+            exit 127
+        fi
     fi
 done< <(find "$DIRECTORIO" -mount -type f -printf "%s:%p\n")
